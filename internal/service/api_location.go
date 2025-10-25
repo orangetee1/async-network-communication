@@ -1,21 +1,13 @@
 package service
 
 import (
+	"async_communication/internal/model"
 	"log"
 	"os"
 	"resty.dev/v3"
 )
 
-type Hit struct {
-	Country string `json:"country"`
-	City    string `json:"city"`
-	Name    string `json:"name"`
-}
-type Locations struct {
-	Hits []Hit `json:"hits"`
-}
-
-func GetLocation(location string, pipe chan<- *Locations) {
+func GetLocation(location string, pipe chan<- *model.Locations) {
 	// TODO: un hardcode values
 	c := resty.New()
 	defer c.Close()
@@ -25,12 +17,12 @@ func GetLocation(location string, pipe chan<- *Locations) {
 	res, err := c.R().
 		SetQueryParam("q", location).
 		SetQueryParam("key", locationKey).
-		SetResult(&Locations{}).
+		SetResult(&model.Locations{}).
 		Get("https://graphhopper.com/api/1/geocode")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	pipe <- res.Result().(*Locations)
+	pipe <- res.Result().(*model.Locations)
 }
