@@ -7,25 +7,31 @@ import (
 	"resty.dev/v3"
 )
 
-func GetWeather(latitude string, longitude string, pipe chan<- *model.Weather) {
-	// TODO: un hardcode those values
+func GetWeather(latitude string, longitude string) chan *model.Weather {
+	pipe := make(chan *model.Weather)
 
-	c := resty.New()
-	defer c.Close()
+	go func() {
+		c := resty.New()
+		defer c.Close()
 
-	weatherKey := os.Getenv("OPEN_WEATHER_API_KEY")
+		weatherKey := os.Getenv("OPEN_WEATHER_API_KEY")
 
-	res, err := c.R().
-		SetQueryParam("lat", latitude).
-		SetQueryParam("lon", longitude).
-		SetQueryParam("units", "metric").
-		SetQueryParam("appid", weatherKey).
-		SetResult(&model.Weather{}).
-		Get("https://api.openweathermap.org/data/2.5/weather")
+		res, err := c.R().
+			SetQueryParam("lat", latitude).
+			SetQueryParam("lon", longitude).
+			SetQueryParam("units", "metric").
+			SetQueryParam("appid", weatherKey).
+			SetResult(&model.Weather{}).
+			Get("https://api.openweathermap.org/data/2.5/weather")
 
-	if err != nil {
-		log.Fatal(err)
-	}
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	pipe <- res.Result().(*model.Weather)
+		pipe <- res.Result().(*model.Weather)
+
+		close(pipe)
+	}()
+
+	return pipe
 }
