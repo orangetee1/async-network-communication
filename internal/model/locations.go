@@ -1,11 +1,11 @@
 package model
 
 type Hit struct {
+	Name    string `json:"name"`
 	Country string `json:"country"`
 	City    string `json:"city"`
-	Name    string `json:"name"`
 }
 
 type Locations struct {
-	Hits []Hit `json:"hits"`
+	Hits []Hit `json:"results"`
 }

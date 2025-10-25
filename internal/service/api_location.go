@@ -7,18 +7,26 @@ import (
 	"resty.dev/v3"
 )
 
+type errorResponse struct {
+	StatusCode int    `json:"statusCode"`
+	Error      string `json:"error"`
+	Message    string `json:"message"`
+}
+
 func GetLocation(location string, pipe chan<- *model.Locations) {
 	// TODO: un hardcode values
+	locationKey := os.Getenv("GEOAPIFY_API_KEY")
+
 	c := resty.New()
 	defer c.Close()
 
-	locationKey := os.Getenv("GRAPH_HOPPER_API_KEY")
-
 	res, err := c.R().
-		SetQueryParam("q", location).
-		SetQueryParam("key", locationKey).
+		SetQueryParam("apiKey", locationKey).
+		SetQueryParam("text", location).
+		SetQueryParam("lang", "ru").
+		SetQueryParam("format", "json").
 		SetResult(&model.Locations{}).
-		Get("https://graphhopper.com/api/1/geocode")
+		Get("https://api.geoapify.com/v1/geocode/search")
 
 	if err != nil {
 		log.Fatal(err)
