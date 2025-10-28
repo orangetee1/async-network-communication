@@ -8,7 +8,7 @@ import (
 	"resty.dev/v3"
 )
 
-func GetPlacesByRadius(lon float32, lat float32, radius int) *model.Places {
+func GetPlacesByRadius(lon float32, lat float32, radius int) *resty.Response {
 	placesKey := os.Getenv("GEOAPIFY_API_KEY")
 
 	filter := "circle:" + fmt.Sprintf("%f", lon) +
@@ -23,11 +23,12 @@ func GetPlacesByRadius(lon float32, lat float32, radius int) *model.Places {
 		SetQueryParam("categories", "entertainment").
 		SetQueryParam("filter", filter).
 		SetResult(&model.Places{}).
+		SetError(&model.LocationError{}).
 		Get("https://api.geoapify.com/v2/places")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return res.Result().(*model.Places)
+	return res
 }

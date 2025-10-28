@@ -7,7 +7,7 @@ import (
 	"resty.dev/v3"
 )
 
-func GetLocation(location string) *model.Locations {
+func GetLocations(location string) *resty.Response {
 	locationKey := os.Getenv("GEOAPIFY_API_KEY")
 
 	c := resty.New()
@@ -19,11 +19,12 @@ func GetLocation(location string) *model.Locations {
 		SetQueryParam("lang", "ru").
 		SetQueryParam("format", "json").
 		SetResult(&model.Locations{}).
+		SetError(&model.LocationError{}).
 		Get("https://api.geoapify.com/v1/geocode/search")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return res.Result().(*model.Locations)
+	return res
 }

@@ -7,7 +7,7 @@ import (
 	"resty.dev/v3"
 )
 
-func GetPlaceInfoById(placeId string) *model.PlaceInfo {
+func GetPlaceInfoById(placeId string) *resty.Response {
 	placesKey := os.Getenv("GEOAPIFY_API_KEY")
 
 	c := resty.New()
@@ -18,11 +18,12 @@ func GetPlaceInfoById(placeId string) *model.PlaceInfo {
 		SetQueryParam("id", placeId).
 		SetQueryParam("features", "details,details.names").
 		SetResult(&model.PlaceInfo{}).
+		SetError(&model.LocationError{}).
 		Get("https://api.geoapify.com/v2/place-details")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return res.Result().(*model.PlaceInfo)
+	return res
 }

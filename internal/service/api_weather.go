@@ -7,7 +7,7 @@ import (
 	"resty.dev/v3"
 )
 
-func GetWeather(latitude string, longitude string) *model.Weather {
+func GetWeather(latitude string, longitude string) *resty.Response {
 	c := resty.New()
 	defer c.Close()
 
@@ -19,11 +19,12 @@ func GetWeather(latitude string, longitude string) *model.Weather {
 		SetQueryParam("units", "metric").
 		SetQueryParam("appid", weatherKey).
 		SetResult(&model.Weather{}).
+		SetError(&model.WeatherError{}).
 		Get("https://api.openweathermap.org/data/2.5/weather")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return res.Result().(*model.Weather)
+	return res
 }
