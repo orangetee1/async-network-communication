@@ -62,3 +62,22 @@ func RequestPlaces(latitude, longitude float32) tea.Cmd {
 		}
 	}
 }
+
+func RequestPlaceInfo(placeId string) tea.Cmd {
+	return func() tea.Msg {
+		placeInfo := service.GetPlaceInfoById(placeId)
+
+		if placeInfo.IsError() {
+			err := placeInfo.Error().(*model.LocationError)
+
+			return ErrorChanged{
+				Error: fmt.Sprintf("Code %d, Message: %s", err.StatusCode, err.Message),
+			}
+		}
+
+		return PlaceInfoLoaded{
+			Info: placeInfo.Result().(*model.PlaceInfo),
+		}
+
+	}
+}
