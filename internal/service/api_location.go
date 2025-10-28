@@ -7,31 +7,23 @@ import (
 	"resty.dev/v3"
 )
 
-func GetLocation(location string) chan *model.Locations {
-	pipe := make(chan *model.Locations)
+func GetLocation(location string) *model.Locations {
+	locationKey := os.Getenv("GEOAPIFY_API_KEY")
 
-	go func() {
-		locationKey := os.Getenv("GEOAPIFY_API_KEY")
+	c := resty.New()
+	defer c.Close()
 
-		c := resty.New()
-		defer c.Close()
+	res, err := c.R().
+		SetQueryParam("apiKey", locationKey).
+		SetQueryParam("text", location).
+		SetQueryParam("lang", "ru").
+		SetQueryParam("format", "json").
+		SetResult(&model.Locations{}).
+		Get("https://api.geoapify.com/v1/geocode/search")
 
-		res, err := c.R().
-			SetQueryParam("apiKey", locationKey).
-			SetQueryParam("text", location).
-			SetQueryParam("lang", "ru").
-			SetQueryParam("format", "json").
-			SetResult(&model.Locations{}).
-			Get("https://api.geoapify.com/v1/geocode/search")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		pipe <- res.Result().(*model.Locations)
-
-		close(pipe)
-	}()
-
-	return pipe
+	return res.Result().(*model.Locations)
 }
