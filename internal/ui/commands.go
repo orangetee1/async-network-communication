@@ -7,6 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const radius = 2000
+
 func RequestLocations(request string) tea.Cmd {
 	return func() tea.Msg {
 		locations := service.GetLocations(request)
@@ -20,7 +22,7 @@ func RequestLocations(request string) tea.Cmd {
 		}
 
 		return LocationsLoaded{
-			locations: locations.Result().(*model.Locations),
+			Locations: locations.Result().(*model.Locations),
 		}
 	}
 }
@@ -38,7 +40,25 @@ func RequestWeather(latitude, longitude float32) tea.Cmd {
 		}
 
 		return WeatherLoaded{
-			weather: weather.Result().(*model.Weather),
+			Weather: weather.Result().(*model.Weather),
+		}
+	}
+}
+
+func RequestPlaces(latitude, longitude float32) tea.Cmd {
+	return func() tea.Msg {
+		places := service.GetPlacesByRadius(longitude, latitude, radius)
+
+		if places.IsError() {
+			err := places.Error().(*model.LocationError)
+
+			return ErrorChanged{
+				Error: fmt.Sprintf("Code %d, Message: %s", err.StatusCode, err.Message),
+			}
+		}
+
+		return PlacesLoaded{
+			Places: places.Result().(*model.Places),
 		}
 	}
 }
