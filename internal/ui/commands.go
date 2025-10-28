@@ -24,3 +24,21 @@ func RequestLocations(request string) tea.Cmd {
 		}
 	}
 }
+
+func RequestWeather(latitude, longitude float32) tea.Cmd {
+	return func() tea.Msg {
+		weather := service.GetWeather(latitude, longitude)
+
+		if weather.IsError() {
+			err := weather.Error().(*model.WeatherError)
+
+			return ErrorChanged{
+				Error: fmt.Sprintf("Code %d, Message: %s", err.StatusCode, err.Message),
+			}
+		}
+
+		return WeatherLoaded{
+			weather: weather.Result().(*model.Weather),
+		}
+	}
+}
