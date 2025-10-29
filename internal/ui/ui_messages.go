@@ -2,6 +2,13 @@ package ui
 
 import "async_communication/internal/model"
 
+type (
+	SwitchToDetails struct {
+		Hit model.Hit
+	}
+	SwitchToSurvey struct{}
+)
+
 type ErrorChanged struct {
 	Error string
 }
