@@ -11,9 +11,7 @@ import (
 func GetPlacesByRadius(lon float32, lat float32, radius int) *resty.Response {
 	placesKey := os.Getenv("GEOAPIFY_API_KEY")
 
-	filter := "circle:" + fmt.Sprintf("%f", lon) +
-		"," + fmt.Sprintf("%f", lat) +
-		"," + fmt.Sprintf("%d", radius)
+	filter := fmt.Sprintf("circle:%f,%f,%d", lon, lat, radius)
 
 	c := resty.New()
 	defer c.Close()
