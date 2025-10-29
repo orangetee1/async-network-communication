@@ -31,9 +31,9 @@ func (p PlaceDetailsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case WeatherLoaded:
 		p.weather = createWeather(msg.Weather)
 	case PlacesLoaded:
-		p.listLoaded = true
 		createListPlaces(&p.list, msg.Places)
 		cmds = append(cmds, createInfoRequests(msg.Places))
+		p.listLoaded = true
 	case PlaceInfoLoaded:
 		p.descriptions[msg.Info.Features[0].Properties.Id] = createDescription(msg.Info)
 	}
@@ -41,11 +41,13 @@ func (p PlaceDetailsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	p.list, listCmd = p.list.Update(msg)
 
 	if p.listLoaded {
-		val, ok := p.descriptions[p.list.SelectedItem().(ListItem).Id()]
-		if ok {
-			p.selectedInfo = val
-		} else {
-			p.selectedInfo = "Not loaded yet"
+		if p.list.SelectedItem() != nil {
+			val, ok := p.descriptions[p.list.SelectedItem().(ListItem).Id()]
+			if ok {
+				p.selectedInfo = val
+			} else {
+				p.selectedInfo = "Not loaded yet"
+			}
 		}
 	}
 
@@ -55,7 +57,7 @@ func (p PlaceDetailsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (p PlaceDetailsModel) View() string {
-	return lipgloss.JoinHorizontal(lipgloss.Top, p.weather, p.list.View(),
+	return lipgloss.JoinHorizontal(lipgloss.Top, p.weather, "   ", p.list.View(), "   ",
 		lipgloss.JoinVertical(lipgloss.Top, PlaceInfoHeader.Render(), p.selectedInfo))
 }
 
@@ -94,8 +96,8 @@ func createWeather(weather *model.Weather) string {
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, WeatherHeader.Render(),
-		fmt.Sprintf("Description: %s\nHumidity: %d\nWind speed: %f\n",
-			desc, weather.Values.Humidity, weather.Wind.Speed)) // todo: fix, add metrics, make it table
+		fmt.Sprintf("Description: %s\nTemperature: %.2f °C\nHumidity: %d%%\nWind speed: %.2f m/s\n",
+			desc, weather.Values.Temp, weather.Values.Humidity, weather.Wind.Speed)) // todo: fix, add metrics, make it table
 }
 
 func createInfoRequests(places *model.Places) tea.Cmd {
@@ -111,6 +113,6 @@ func createInfoRequests(places *model.Places) tea.Cmd {
 func createDescription(placeInfo *model.PlaceInfo) string {
 	props := placeInfo.Features[0].Properties
 
-	return fmt.Sprintf("Name: %s\nCity: %s\nStreet: %s\nHousenumber: %s\nPhone: %s",
-		props.Name, props.City, props.Street, props.HouseNumber, props.Contact.Phone)
+	return fmt.Sprintf("Name: %s\nDescription: %s\nCity: %s\nStreet: %s\nHousenumber: %s\nPhone: %s",
+		props.Name, props.Description, props.City, props.Street, props.HouseNumber, props.Contact.Phone)
 }

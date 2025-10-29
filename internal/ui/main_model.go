@@ -83,7 +83,7 @@ func (m MainModel) View() string {
 		view = m.placeDetailsModel.View()
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Top, view, ErrorStyle.Render(m.currentError))
+	return WithBorder.Render(lipgloss.JoinVertical(lipgloss.Top, view, ErrorStyle.Render(m.currentError)))
 }
 
 func InitMain(logger *os.File) MainModel {

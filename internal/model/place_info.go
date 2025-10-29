@@ -8,6 +8,7 @@ type contact struct {
 type properties struct {
 	Id           string  `json:"place_id"`
 	Name         string  `json:"name"`
+	Description  string  `json:"description"`
 	Website      string  `json:"website"`
 	OpeningHours string  `json:"opening_hours"`
 	Street       string  `json:"street"`
