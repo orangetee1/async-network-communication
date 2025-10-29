@@ -2,9 +2,11 @@ package model
 
 type contact struct {
 	Phone string `json:"phone"`
+	Email string `json:"email"`
 }
 
 type properties struct {
+	Id           string  `json:"place_id"`
 	Name         string  `json:"name"`
 	Website      string  `json:"website"`
 	OpeningHours string  `json:"opening_hours"`
